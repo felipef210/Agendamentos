@@ -154,6 +154,11 @@ public class UsuarioService : IUsuarioService
         if (string.IsNullOrWhiteSpace(fullName))
             return false;
 
+        Regex nomeRegex = new Regex(@"^[A-Za-zÀ-ÖØ-öø-ÿ' ]+$");
+
+        if (!nomeRegex.IsMatch(fullName))
+            return false;
+
         string[] separatedName = fullName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
         return separatedName.Length > 1;
