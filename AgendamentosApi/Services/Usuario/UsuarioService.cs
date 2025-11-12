@@ -52,8 +52,14 @@ public class UsuarioService : IUsuarioService
         if (!IsFullName(cadastroDTO.Nome))
             throw new ParametroInvalidoException("Digite seu nome completo para efetuar o cadastro!");
 
+        if (cadastroDTO.Nome.Trim() == "" || string.IsNullOrEmpty(cadastroDTO.Nome))
+            throw new ParametroInvalidoException("Nome não pode ser vazio!");
+
         if (await EmailExiste(cadastroDTO.Email))
             throw new ParametroInvalidoException("E-mail já cadastrado, por favor insira outro e-mail!");
+
+        if (cadastroDTO.Email.Trim() == "" || string.IsNullOrEmpty(cadastroDTO.Email))
+            throw new ParametroInvalidoException("E-mail não pode ser vazio!");
 
         if (!IsPasswordValid(cadastroDTO.Senha))
             throw new ParametroInvalidoException("Senha no formato inválido!");
@@ -61,6 +67,8 @@ public class UsuarioService : IUsuarioService
         if (cadastroDTO.DataNascimento > DateTime.UtcNow)
             throw new ParametroInvalidoException("Data de nascimento deve ser a data atual ou anterior ao dia atual.");
 
+        if (string.IsNullOrEmpty(cadastroDTO.DataNascimento.ToString()))
+            throw new ParametroInvalidoException("Data de nascimento é obrigatória.");
 
         var usuario = _mapper.Map<UsuarioModel>(cadastroDTO);
 
@@ -75,6 +83,12 @@ public class UsuarioService : IUsuarioService
     public async Task<string> Logar([FromBody] LoginDTO loginDTO)
     {
         var resultado = await _signInManager.PasswordSignInAsync(loginDTO.Email, loginDTO.Senha, false, false);
+
+        if (loginDTO.Email.Trim() == "" || string.IsNullOrEmpty(loginDTO.Email))
+            throw new ParametroInvalidoException("E-mail não pode ser vazio!");
+
+        if (loginDTO.Senha.Trim() == "" || string.IsNullOrEmpty(loginDTO.Senha))
+            throw new ParametroInvalidoException("Senha não pode ser vazia!");
 
         if (!resultado.Succeeded)
             throw new ApplicationException("E-mail ou senha inválido.");
