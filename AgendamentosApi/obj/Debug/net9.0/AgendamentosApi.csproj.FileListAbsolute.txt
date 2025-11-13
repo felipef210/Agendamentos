@@ -292,3 +292,6 @@ D:\Estudos Programação\projetos\Agendamentos\AgendamentosApi\obj\Debug\net9.0\
 D:\Estudos Programação\projetos\Agendamentos\AgendamentosApi\obj\Debug\net9.0\AgendamentosApi.pdb
 D:\Estudos Programação\projetos\Agendamentos\AgendamentosApi\obj\Debug\net9.0\AgendamentosApi.genruntimeconfig.cache
 D:\Estudos Programação\projetos\Agendamentos\AgendamentosApi\obj\Debug\net9.0\ref\AgendamentosApi.dll
+D:\Estudos Programação\projetos\Agendamentos\AgendamentosApi\bin\Debug\net9.0\BouncyCastle.Cryptography.dll
+D:\Estudos Programação\projetos\Agendamentos\AgendamentosApi\bin\Debug\net9.0\MailKit.dll
+D:\Estudos Programação\projetos\Agendamentos\AgendamentosApi\bin\Debug\net9.0\MimeKit.dll

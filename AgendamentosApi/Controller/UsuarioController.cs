@@ -1,6 +1,7 @@
 using AgendamentosApi.Dto.Usuario;
 using AgendamentosApi.Services.Usuario;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AgendamentosApi.Controller;
@@ -11,9 +12,11 @@ public class UsuarioController : ControllerBase
 {
     private readonly IUsuarioService _usuarioService;
 
+
     public UsuarioController(IUsuarioService usuarioService)
     {
         _usuarioService = usuarioService;
+
     }
 
     [HttpGet]
@@ -43,6 +46,20 @@ public class UsuarioController : ControllerBase
     {
         var token = await _usuarioService.Logar(loginDTO);
         return Ok(token);
+    }
+
+    [HttpPost("forgot-password")]
+    public async Task<IActionResult> ForgotPassword([FromBody] EsqueceuSenhaDTO dto)
+    {
+        await _usuarioService.ForgotPasswordAsync(dto);
+        return Ok(new { message = "E-mail de recuperação enviado com sucesso!" });
+    }
+
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDTO dto)
+    {
+        await _usuarioService.ResetPasswordAsync(dto);
+        return Ok(new { message = "Senha redefinida com sucesso!" });
     }
 
     [HttpPut]

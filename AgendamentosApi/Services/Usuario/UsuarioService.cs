@@ -7,6 +7,8 @@ using AutoMapper;
 using UsuarioModel = AgendamentosApi.Models.Usuario;
 using System.Text.RegularExpressions;
 using AgendamentosApi.Services.Token;
+using AgendamentosApi.Services.Email;
+using System.Web;
 
 namespace AgendamentosApi.Services.Usuario;
 
@@ -18,8 +20,10 @@ public class UsuarioService : IUsuarioService
     private readonly IMapper _mapper;
     private readonly ITokenService _tokenService;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IEmailSender _emailSender;
+    private readonly IConfiguration _configuration;
 
-    public UsuarioService(IUsuarioRepository usuarioRepository, UserManager<UsuarioModel> userManager, IMapper mapper, SignInManager<UsuarioModel> signInManager, ITokenService tokenService, IHttpContextAccessor httpContextAccessor)
+    public UsuarioService(IUsuarioRepository usuarioRepository, UserManager<UsuarioModel> userManager, IMapper mapper, SignInManager<UsuarioModel> signInManager, ITokenService tokenService, IHttpContextAccessor httpContextAccessor, IEmailSender emailSender, IConfiguration configuration)
     {
         _usuarioRepository = usuarioRepository;
         _userManager = userManager;
@@ -27,6 +31,8 @@ public class UsuarioService : IUsuarioService
         _signInManager = signInManager;
         _tokenService = tokenService;
         _httpContextAccessor = httpContextAccessor;
+        _emailSender = emailSender;
+        _configuration = configuration;
     }
 
     public async Task<UsuarioDTO> BuscarUsuarioPorId()
@@ -135,6 +141,44 @@ public class UsuarioService : IUsuarioService
         var usuarios = await _usuarioRepository.ListarUsuarios();
         var usuariosDTO = _mapper.Map<List<UsuarioDTO>>(usuarios);
         return usuariosDTO;
+    }
+
+    public async Task ForgotPasswordAsync(EsqueceuSenhaDTO dto)
+    {
+        var user = await _userManager.FindByEmailAsync(dto.Email);
+
+        if (user == null)
+            throw new ApplicationException("Usuário não encontrado.");
+
+        var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+        // Monta o link do frontend
+        var frontendUrl = _configuration["FrontendUrl"];
+        var resetLink = $"{frontendUrl}/reset-password?email={HttpUtility.UrlEncode(dto.Email)}&token={HttpUtility.UrlEncode(token)}";
+
+        var htmlBody = $@"
+            <p>Olá, {user.Nome}!</p>
+            <p>Para redefinir sua senha, clique no link abaixo:</p>
+            <p><a href=""{resetLink}"">Redefinir senha</a></p>
+            <p>Se não foi você quem solicitou, ignore este e-mail.</p>
+        ";
+
+        await _emailSender.SendEmailAsync(dto.Email, "Recuperação de Senha", htmlBody);
+    }
+
+    // 🔹 Redefine a senha com o token recebido
+    public async Task ResetPasswordAsync(ResetPasswordDTO dto)
+    {
+        var user = await _userManager.FindByEmailAsync(dto.Email)
+            ?? throw new ApplicationException("Usuário não encontrado.");
+
+        var result = await _userManager.ResetPasswordAsync(user, dto.Token, dto.NovaSenha);
+
+        if (!result.Succeeded)
+        {
+            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+            throw new ApplicationException($"Erro ao redefinir a senha: {errors}");
+        }
     }
 
     private string CapitalizeFullName(string fullName)

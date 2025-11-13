@@ -11,5 +11,7 @@ namespace AgendamentosApi.Services.Usuario
         Task<UsuarioDTO> EditarUsuario([FromBody] EditarPerfilDTO editarPerfilDTO);
         Task Cadastrar([FromBody] CadastroDTO cadastroDTO);
         Task<string> Logar(LoginDTO loginDTO);
+        Task ForgotPasswordAsync(EsqueceuSenhaDTO dto);
+        Task ResetPasswordAsync(ResetPasswordDTO dto);
     }
 }

@@ -4,6 +4,7 @@ using AgendamentosApi.Models;
 using AgendamentosApi.Repository.Agendamento;
 using AgendamentosApi.Repository.Usuario;
 using AgendamentosApi.Services.Agendamento;
+using AgendamentosApi.Services.Email;
 using AgendamentosApi.Services.Token;
 using AgendamentosApi.Services.Usuario;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -23,10 +24,22 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDbContext<Context>(options =>
+if (builder.Environment.IsDevelopment())
 {
-    options.UseNpgsql(builder.Configuration["DefaultConnection"]);
-});
+    builder.Services.AddDbContext<Context>(options => {
+        options.UseNpgsql(builder.Configuration["DevConnection"]);
+    });
+}
+
+else
+{
+    builder.Services.AddDbContext<Context>(options =>
+    {
+        options.UseNpgsql(builder.Configuration["DefaultConnection"]);
+    });
+}
+
+builder.Services.Configure<DataProtectionTokenProviderOptions>(opt => opt.TokenLifespan = TimeSpan.FromHours(1));
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
@@ -47,6 +60,7 @@ builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAgendamentoRepository, AgendamentoRepository>();
 builder.Services.AddScoped<IAgendamentoService, AgendamentoService>();
+builder.Services.AddScoped<IEmailSender, EmailSender>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddHttpContextAccessor();
