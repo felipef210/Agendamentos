@@ -154,7 +154,7 @@ public class UsuarioService : IUsuarioService
 
         // Monta o link do frontend
         var frontendUrl = _configuration["FrontendUrl"];
-        var resetLink = $"{frontendUrl}/reset-password?email={HttpUtility.UrlEncode(dto.Email)}&token={HttpUtility.UrlEncode(token)}";
+        var resetLink = $"{frontendUrl}/resetar-senha?email={HttpUtility.UrlEncode(dto.Email)}&token={HttpUtility.UrlEncode(token)}";
 
         var htmlBody = $@"
             <p>Olá, {user.Nome}!</p>
