@@ -92,6 +92,12 @@
     </div>
   }
 
+  @if (titulo() === 'Login') {
+    <div class="div__recuperar-senha">
+      <a routerLink="/recuperar-senha" class="link-recuperar-senha">Esqueceu sua senha ?</a>
+    </div>
+  }
+
   @if (mensagemErro()) {
     <mat-error style="margin-bottom: 1rem; margin-top: -1.5rem;">{{ mensagemErro() }}</mat-error>
   }
